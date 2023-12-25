@@ -28,10 +28,11 @@ async function run() {
     await client.connect();
     
     const userCollection = client.db("taskDB").collection("users");
+    const taskCollection = client.db("taskDB").collection("tasks");
 
      // users related api
      app.get("/users", async (req, res) => {
-      console.log(req.headers);
+      // console.log(req.headers);
       const cursor = userCollection.find();
       const result = await cursor.toArray();
       res.send(result);
@@ -53,6 +54,21 @@ async function run() {
       res.send(result);
     });
     
+
+    // task realted api
+    app.get("/tasks", async (req, res) => {
+      const cursor = taskCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.post("/tasks", async (req, res) => {
+      const task = req.body;
+      console.log(task);
+      const result = await taskCollection.insertOne(task);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
