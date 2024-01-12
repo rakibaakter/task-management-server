@@ -63,6 +63,16 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+    
+    app.get("/tasks/:id", async (req, res) => {
+      const id = req.params.id;
+      // console.log(id);
+      const query = {_id : new ObjectId (id)}
+      // const cursor = taskCollection.findOne(query);
+      const result = await taskCollection.findOne(query);
+      // console.log(result);
+      res.send(result);
+    });
 
     app.post("/tasks", async (req, res) => {
       const task = req.body;
@@ -79,17 +89,22 @@ async function run() {
       res.send(result);
     });
 
-    // app.patch("/tasks/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const filter = { _id: new ObjectId(id) };
-    //   const updatedDoc = {
-    //     $set: {
-    //       status: "on-going",
-    //     },
-    //   };
-    //   const result = await taskCollection.updateOne(filter, updatedDoc);
-    //   res.send(result);
-    // });
+    app.patch("/tasks/:id", async (req, res) => {
+      const id = req.params.id;
+      const updatedTask = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          title : updatedTask.title,
+          description : updatedTask.description,
+          deadline : updatedTask.deadline,
+          priority : updatedTask.priority
+        },
+      };
+      const result = await taskCollection.updateOne(filter, updatedDoc, options);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
